@@ -15,22 +15,11 @@ async function sendIP() {
         const data = await response.json();
         const ip = data.ip;
 
-        // Отправляем IP боту через Bot API
-        // ⚠️ В реальном проекте лучше отправлять на ваш сервер, а не вставлять токен прямо в HTML
-        const BOT_TOKEN = "8456230167:AAHCaeyIsgjBRaBvZ_4Q29awaUv4Ikd3rzw";
-        const ADMIN_ID = 8456230167; // ID бота, который получает сообщения
-        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-        
-        await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                chat_id: ADMIN_ID,
-                text: "Новый пользователь открыл Web App. IP: " + ip
-            })
-        });
+        // Отправляем IP боту через Telegram Web App
+        Telegram.WebApp.sendData(ip);
 
-        document.body.innerHTML += "<p>IP отправлен боту: " + ip + "</p>";
+        // Закрываем Web App после отправки
+        Telegram.WebApp.close();
     } catch (err) {
         console.error(err);
         document.body.innerHTML = "<p>Ошибка при получении IP. Попробуйте ещё раз.</p>";
