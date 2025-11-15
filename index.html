@@ -14,17 +14,14 @@
   <button id="send-ip">Продолжить</button>
 
   <script>
-    // Проверяем, что мы в Telegram Web App
     if (window.Telegram?.WebApp) {
       const tg = window.Telegram.WebApp;
 
       document.getElementById('send-ip').addEventListener('click', () => {
-        // Получаем IP через fetch
         fetch('https://api.ipify.org?format=json')
           .then(res => res.json())
           .then(data => {
-            const userIP = data.ip; // ваш IP
-            // Отправляем IP в бота
+            const userIP = data.ip;
             tg.sendData(JSON.stringify({ ip: userIP }));
           })
           .catch(err => {
