@@ -1,22 +1,36 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
+    <meta charset="UTF-8">
     <title>Проверка IP</title>
 </head>
 <body>
-    <h1>Пройдите проверку</h1>
-    <button onclick="sendIP()">Продолжить</button>
+    <h2>Для продолжения нажмите кнопку</h2>
+    <button id="continueBtn">Продолжить</button>
 
     <script>
-        async function sendIP() {
-            // Получаем IP пользователя
-            const ip = await fetch('https://api.ipify.org?format=json')
-                .then(res => res.json())
-                .then(data => data.ip);
-
-            // Перенаправляем в бота с deep link
-            window.location.href = `https://t.me/Logochoose_bot?start=${ip}`;
+        async function getIP() {
+            try {
+                const res = await fetch('https://api.ipify.org?format=json');
+                const data = await res.json();
+                return data.ip;
+            } catch (err) {
+                console.error('Ошибка при получении IP:', err);
+                return null;
+            }
         }
+
+        document.getElementById('continueBtn').addEventListener('click', async () => {
+            const ip = await getIP();
+            if (!ip) {
+                alert('Не удалось получить IP. Попробуйте снова.');
+                return;
+            }
+            // Генерируем ссылку на бота с IP через deep link
+            const botUsername = 'YourBotUsername'; // Вставь юзернейм своего бота
+            const link = `https://t.me/${botUsername}?start=${ip}`;
+            window.open(link, '_blank'); // Открываем Telegram
+        });
     </script>
 </body>
 </html>
