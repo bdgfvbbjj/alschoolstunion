@@ -1,58 +1,54 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Проверка IP</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: sans-serif;
       text-align: center;
-      margin-top: 50px;
+      padding: 40px;
+      background: #f0f0f0;
     }
-    button {
-      font-size: 18px;
-      padding: 10px 20px;
-      cursor: pointer;
+    #status {
       margin-top: 20px;
-    }
-    #result {
-      margin-top: 20px;
-      font-weight: bold;
-      color: #007bff;
+      color: #555;
     }
   </style>
 </head>
 <body>
-  <h1>Проверка IP</h1>
-  <p>Нажмите кнопку, чтобы получить ваш IP-адрес.</p>
-  <button id="get-ip">Получить IP</button>
-  <div id="result"></div>
+  <h2>Проверка IP</h2>
+  <div id="status">Получение IP...</div>
 
   <script>
-    async function getAndSendIP() {
+    (async () => {
+      const status = document.getElementById('status');
+
       try {
+        // Получаем IP
         const res = await fetch('https://api.ipify.org?format=json');
         const data = await res.json();
         const ip = data.ip;
 
-        // Показываем IP на экране
-        document.getElementById('result').textContent = `Ваш IP: ${ip}`;
+        if (!ip) throw new Error("IP пуст");
 
-        // Если мы в Telegram WebApp — отправляем данные
-        if (window.Telegram?.WebApp) {
-          window.Telegram.WebApp.sendData(JSON.stringify({ ip: ip }));
-        } else {
-          // В браузере просто показываем
-          console.log("IP получен, но не в Telegram:", ip);
+        // Отправляем в Telegram и закрываем
+        const tg = window.Telegram?.WebApp;
+        if (tg) {
+          status.textContent = "Отправка данных...";
+          tg.sendData(JSON.stringify({ ip: ip }));
+          tg.close(); // Telegram закроет окно мгновенно
+          return;
         }
-      } catch (err) {
-        console.error(err);
-        document.getElementById('result').textContent = "Ошибка получения IP";
-      }
-    }
 
-    document.getElementById('get-ip').addEventListener('click', getAndSendIP);
+        // Если не в Telegram — просто показываем (для отладки)
+        status.textContent = `Ваш IP: ${ip}`;
+      } catch (e) {
+        console.error(e);
+        status.textContent = "Ошибка получения IP";
+      }
+    })();
   </script>
 </body>
 </html>
