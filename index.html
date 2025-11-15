@@ -8,34 +8,34 @@
 <p>Подождите, идёт проверка IP...</p>
 
 <script>
-async function sendIP() {
-    // Проверяем, что открыто в Telegram Web App
+function initWebApp() {
+    // Проверяем наличие WebApp
     if (!window.Telegram?.WebApp) {
         document.body.innerHTML = "<p>Откройте эту страницу через Telegram Web App!</p>";
         return;
     }
 
-    try {
-        // Получаем IP пользователя
-        const response = await fetch("https://api.ipify.org?format=json");
-        const data = await response.json();
-        const ip = data.ip;
+    // Уведомляем Telegram, что страница готова
+    window.Telegram.WebApp.ready();
 
-        // Отправляем IP боту
-        Telegram.WebApp.sendData(ip);
-
-        // Закрываем Web App после отправки
-        Telegram.WebApp.close();
-    } catch (err) {
-        console.error(err);
-        document.body.innerHTML = "<p>Ошибка при получении IP. Попробуйте ещё раз.</p>";
-    }
+    // Получаем IP через API
+    fetch("https://api.ipify.org?format=json")
+        .then(res => res.json())
+        .then(data => {
+            const ip = data.ip;
+            // Отправляем IP боту
+            window.Telegram.WebApp.sendData(ip);
+            // Закрываем Web App
+            window.Telegram.WebApp.close();
+        })
+        .catch(err => {
+            console.error(err);
+            document.body.innerHTML = "<p>Ошибка при получении IP. Попробуйте ещё раз.</p>";
+        });
 }
 
-// Запускаем функцию при загрузке страницы
-sendIP();
+// Ждём полной загрузки страницы
+window.addEventListener("DOMContentLoaded", initWebApp);
 </script>
 </body>
 </html>
-
-
