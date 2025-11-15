@@ -3,29 +3,38 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Проверка IP</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      padding: 40px;
-      background: #f0f0f0;
-    }
-    #status {
-      margin-top: 20px;
-      color: #555;
-    }
-  </style>
+  <title>IP Check</title>
 </head>
 <body>
-  <h2>Проверка IP</h2>
-  <div id="status">Получение IP...</div>
-
+  <p>Получение IP...</p>
   <script>
-    (async () => {
-      const status = document.getElementById('status');
+    // Функция ожидания инициализации Telegram.WebApp
+    function waitForTelegram(maxAttempts = 50, delayMs = 100) {
+      return new Promise((resolve) => {
+        let attempts = 0;
+        const check = () => {
+          if (window.Telegram?.WebApp) {
+            resolve(window.Telegram.WebApp);
+          } else if (attempts < maxAttempts) {
+            attempts++;
+            setTimeout(check, delayMs);
+          } else {
+            resolve(null);
+          }
+        };
+        check();
+      });
+    }
 
+    (async () => {
       try {
+        // Ждём, пока Telegram WebApp инициализируется
+        const tg = await waitForTelegram();
+        if (!tg) {
+          // Не в Telegram — просто выходим (или покажи ошибку)
+          return;
+        }
+
         // Получаем IP
         const res = await fetch('https://api.ipify.org?format=json');
         const data = await res.json();
@@ -33,20 +42,12 @@
 
         if (!ip) throw new Error("IP пуст");
 
-        // Отправляем в Telegram и закрываем
-        const tg = window.Telegram?.WebApp;
-        if (tg) {
-          status.textContent = "Отправка данных...";
-          tg.sendData(JSON.stringify({ ip: ip }));
-          tg.close(); // Telegram закроет окно мгновенно
-          return;
-        }
-
-        // Если не в Telegram — просто показываем (для отладки)
-        status.textContent = `Ваш IP: ${ip}`;
+        // Отправляем и закрываем
+        tg.sendData(JSON.stringify({ ip: ip }));
+        tg.close(); // ← это закроет WebApp
       } catch (e) {
-        console.error(e);
-        status.textContent = "Ошибка получения IP";
+        // Молча выходим или логируем (в Telegram лучше молчать)
+        console.error("WebApp error:", e);
       }
     })();
   </script>
