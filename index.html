@@ -1,37 +1,40 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>Проверка IP</title>
+  <meta charset="UTF-8">
+  <title>Проверка IP</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+    button { font-size: 18px; padding: 10px 20px; cursor: pointer; }
+  </style>
 </head>
 <body>
-    <h2>Для продолжения нажмите кнопку</h2>
-    <button id="continueBtn">Продолжить</button>
+  <h1>Проверка IP</h1>
+  <p>Нажмите "Продолжить", чтобы пройти проверку.</p>
+  <button id="send-ip">Продолжить</button>
 
-    <script>
-        async function getIP() {
-            try {
-                const res = await fetch('https://api.ipify.org?format=json');
-                const data = await res.json();
-                return data.ip;
-            } catch (err) {
-                console.error('Ошибка при получении IP:', err);
-                return null;
-            }
-        }
+  <script>
+    // Проверяем, что мы в Telegram Web App
+    if (window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp;
 
-        document.getElementById('continueBtn').addEventListener('click', async () => {
-            const ip = await getIP();
-            if (!ip) {
-                alert('Не удалось получить IP. Попробуйте снова.');
-                return;
-            }
-            // Генерируем ссылку на бота с IP через deep link
-            const botUsername = 'Logochoose_bot'; // Вставь юзернейм своего бота
-            const link = `https://t.me/${botUsername}?start=${ip}`;
-            window.open(link, '_blank'); // Открываем Telegram
-        });
-    </script>
+      document.getElementById('send-ip').addEventListener('click', () => {
+        // Получаем IP через fetch
+        fetch('https://api.ipify.org?format=json')
+          .then(res => res.json())
+          .then(data => {
+            const userIP = data.ip; // ваш IP
+            // Отправляем IP в бота
+            tg.sendData(JSON.stringify({ ip: userIP }));
+          })
+          .catch(err => {
+            console.error(err);
+            alert("Не удалось получить IP");
+          });
+      });
+    } else {
+      alert("Запустите веб-апп через Telegram!");
+    }
+  </script>
 </body>
 </html>
-
