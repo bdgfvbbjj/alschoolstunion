@@ -31,7 +31,7 @@ cancel_button.add("Отмена")
 # Старт и открытие Web App
 @dp.message_handler(lambda message: message.text == "Начать регистрацию")
 async def start_registration(message: types.Message):
-    web_app = WebAppInfo(url="https://ваш_сайт_с_webapp.com")  # URL вашего веб-приложения
+    web_app = WebAppInfo(url="https://startling-biscotti-c62137.netlify.app/")  # URL вашего веб-приложения
     markup = ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(KeyboardButton(text="Открыть регистрацию", web_app=web_app))
     await message.answer("Откройте веб-страницу для продолжения регистрации:", reply_markup=markup)
@@ -107,3 +107,4 @@ async def confirmation(callback_query: types.CallbackQuery, state: FSMContext):
 if __name__ == "__main__":
     from aiogram import executor
     executor.start_polling(dp, skip_updates=True)
+
